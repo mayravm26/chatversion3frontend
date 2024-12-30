@@ -16,27 +16,28 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    // Conexión inicial con el WebSocket
     Future.microtask(() {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
       final chatProvider = Provider.of<ChatProvider>(context, listen: false);
 
+      // Conecta al WebSocket
       if (userProvider.token != null && userProvider.token!.isNotEmpty) {
         chatProvider.connect(userProvider.token!);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error: No se encontró un token válido'),
-          ),
+
+        // Ejemplo de envío automático de un mensaje
+        chatProvider.sendMessage(
+          userProvider.nombre ?? 'Anónimo',
+          'Hola desde Flutter Web',
         );
+      } else {
+        print('Error: Token no válido');
       }
     });
   }
 
   @override
   void dispose() {
-    // Liberar recursos del controlador
-    _messageController.dispose();
+    _messageController.dispose(); // Liberar recursos del controlador
     super.dispose();
   }
 
@@ -50,14 +51,10 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
-          // Lista de mensajes
           Expanded(
             child: chatProvider.messages.isEmpty
                 ? const Center(
-                    child: Text(
-                      'No hay mensajes todavía',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
+                    child: Text('No hay mensajes todavía'),
                   )
                 : ListView.builder(
                     itemCount: chatProvider.messages.length,
@@ -65,20 +62,14 @@ class _ChatScreenState extends State<ChatScreen> {
                       final message = chatProvider.messages[index];
                       return ListTile(
                         title: Text(
-                          message['user'] ?? 'Anónimo',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          message['user']!,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        subtitle: Text(
-                          message['message'] ?? '',
-                          style: const TextStyle(fontSize: 14),
-                        ),
+                        subtitle: Text(message['message']!),
                       );
                     },
                   ),
           ),
-          // Campo de entrada para enviar mensajes
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -108,14 +99,12 @@ class _ChatScreenState extends State<ChatScreen> {
                       return;
                     }
 
-                    // Enviar el mensaje
                     chatProvider.sendMessage(
                       userProvider.nombre ?? 'Anónimo',
                       _messageController.text.trim(),
                     );
 
-                    // Limpiar el campo de entrada
-                    _messageController.clear();
+                    _messageController.clear(); // Limpiar el campo de texto
                   },
                 ),
               ],

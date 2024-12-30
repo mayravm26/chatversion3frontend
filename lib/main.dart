@@ -17,6 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        // Configuración de los proveedores
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
       ],
@@ -26,11 +27,22 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        initialRoute: '/registerUser', // Comienza con el registro
+        initialRoute: '/crearUsuario', // Ruta inicial
         routes: {
+          // Declaración de rutas
           '/login': (context) => const LoginScreen(),
-          '/registerUser': (context) => RegisterUserScreen(),
+          '/crearUsuario': (context) => const RegisterUserScreen(),
           '/chat': (context) => const ChatScreen(),
+        },
+        onUnknownRoute: (settings) {
+          // Maneja rutas desconocidas
+          return MaterialPageRoute(
+            builder: (context) => const Scaffold(
+              body: Center(
+                child: Text('Ruta no encontrada'),
+              ),
+            ),
+          );
         },
       ),
     );

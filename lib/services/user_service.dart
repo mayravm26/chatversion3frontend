@@ -28,7 +28,7 @@ class UserService {
   // Registrar un nuevo usuario
   Future<User> registerUser(String name, String email, String password) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/api/usuarios'),
+      Uri.parse('$baseUrl/api/auth/new'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'nombre': name,
@@ -37,10 +37,28 @@ class UserService {
       }),
     );
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 200) {
       return User.fromJson(jsonDecode(response.body)['usuario']);
     } else {
       throw Exception('Error al registrar el usuario');
+    }
+  }
+
+  // Login de usuario
+  Future<String> login(String email, String password) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/auth/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body)['token'];
+    } else {
+      throw Exception('Error al iniciar sesión');
     }
   }
 }
